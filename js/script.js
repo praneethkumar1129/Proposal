@@ -428,12 +428,40 @@ class ValentineApp {
             });
         }
         
-        // NO button
+        // NO button - runs away from cursor
         const btnNo = document.getElementById('btn-no');
         if (btnNo) {
-            btnNo.addEventListener('click', () => {
-                screenManager.show('sad');
+            btnNo.style.position = 'fixed';
+
+            const moveNoBtn = (clientX, clientY) => {
+                const rect = btnNo.getBoundingClientRect();
+                const btnCX = rect.left + rect.width / 2;
+                const btnCY = rect.top + rect.height / 2;
+                const dist = Math.hypot(clientX - btnCX, clientY - btnCY);
+
+                if (dist < 150) {
+                    const margin = 20;
+                    const maxX = window.innerWidth - rect.width - margin;
+                    const maxY = window.innerHeight - rect.height - margin;
+                    btnNo.style.left = (margin + Math.random() * maxX) + 'px';
+                    btnNo.style.top  = (margin + Math.random() * maxY) + 'px';
+                }
+            };
+
+            // Init position after layout
+            requestAnimationFrame(() => {
+                const rect = btnNo.getBoundingClientRect();
+                btnNo.style.left = rect.left + 'px';
+                btnNo.style.top  = rect.top  + 'px';
             });
+
+            document.addEventListener('mousemove', e => moveNoBtn(e.clientX, e.clientY));
+            document.addEventListener('touchmove', e => {
+                const t = e.touches[0];
+                moveNoBtn(t.clientX, t.clientY);
+            }, { passive: true });
+
+            btnNo.addEventListener('click', () => screenManager.show('sad'));
         }
         
         // Try Again button
